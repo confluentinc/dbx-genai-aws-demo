@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confluent Current 2024</title>
+
+    <style>
+        textarea {
+            width: 100%;
+            float: left;
+            height: 40px;
+        }
+        div {
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        div.prompt {
+            margin-bottom: 0;
+        }
+        div.subtext {
+            font-style: italic;
+            font-size: small;
+            padding: 0;
+            float: left;
+            width: 100%;
+        }
+        div.server {
+            background-color: LightSkyBlue;
+            float: right;
+            width: 70%;
+            border-radius: 6px;
+        }
+        div.client {
+            background-color: FloralWhite;
+            float: left;
+            width: 70%;
+            border-radius: 6px;
+        }
+        div.prompt {
+            width: 70%;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>{{ main_title }}</h2>
+    <div class="prompt">
+
+        <label for="franchise">Store:</label><select id="franchise">
+            {% for item in franchises %}
+                 <option value="{{ item.id }}">{{ item.name }}</option>
+            {% endfor %}
+        </select>
+        <br />
+        <textarea id="inputText" placeholder="Your review..."></textarea>
+        <br />
+        <button id="submitButton">Post Review</button>
+    </div>
+    <div id="discussion"></div>
+
+    <script>
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Example: Generate a random number between 1 and 100
+        const id = getRandomInt(1, 1000);
+
+        // Create a WebSocket connection to the server
+        const socket = new WebSocket('ws://{{ server_address }}:{{ server_port }}/ws/'+id);
+        console.log('ws://{{ server_address }}:{{ server_port }}/ws/'+id)
+
+        // Function to display messages on the web page
+        function showMessage(message, div_class) {
+            const messageContainer = document.getElementById('discussion');
+            const messageElement = document.createElement('div');
+            if (div_class !== "") {
+                messageElement.classList.add(div_class);
+            }
+            messageElement.innerHTML = message;
+            messageContainer.appendChild(messageElement);
+        }
+
+        function showSmallMessage(message) {
+            showMessage('<small><i>' + message + '</i></small>', "subtext");
+        }
+
+        function showClientMessage(message) {
+            showMessage(message, "client");
+        }
+
+        function showServerResponse(message) {
+            showMessage(message, "server");
+        }
+
+        // Event handler for when the connection is established
+        socket.addEventListener('open', (event) => {
+            showSmallMessage("connected")
+        });
+
+        // Event handler for receiving messages from the server
+        socket.onmessage = (event) => {
+            showServerResponse(event.data)
+        }
+
+        // Event handler for when the connection is closed
+        socket.addEventListener('close', (event) => {
+            showSmallMessage('Connection closed.');
+        });
+
+        const inputText = document.getElementById("inputText");
+        const franchise = document.getElementById("franchise");
+        const submitButton = document.getElementById("submitButton");
+
+        submitButton.addEventListener("click", function () {
+            const inputValue = inputText.value;
+            const franchise_id = franchise.value;
+            showClientMessage(inputValue)
+            const review = {
+                'franchise': franchise_id,
+                'review': inputValue
+            }
+            socket.send(JSON.stringify(review))
+        });
+
+    </script>
+</body>
+
+</html>

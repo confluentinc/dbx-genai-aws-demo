@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-decouple
+requests
+numpy
+pandas
+confluent_kafka
+faust-streaming
+databricks-sdk
+openai
+Faker
+websockets
+jinja2
+databricks-sql-connector

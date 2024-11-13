@@ -1,0 +1,41 @@
+FROM python:3.11-slim
+
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    # Allow statements and log messages to immediately appear
+    PYTHONUNBUFFERED=1 \
+    # disable a pip version check to reduce run-time & log-spam
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    # cache is useless in docker image, so disable to reduce image size
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+COPY ./requirements.txt /app/requirements.txt
+
+RUN set -ex \
+    # Create a non-root user
+    && addgroup --system --gid 1001 appgroup \
+    && adduser --system --uid 1001 --gid 1001 --no-create-home appuser \
+    # Upgrade the package index and install security upgrades
+    && apt-get update \
+    && apt-get upgrade -y \
+    # Install dependencies
+    && pip install -r /app/requirements.txt \
+    # Clean up
+    && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./src /app/src/
+
+# fastapi needs/runs an app/main.py
+COPY ./main_1.py /app/main.py
+COPY templates/* /app/templates/
+COPY ./*.tsv /app/
+
+# Set the user to run the application
+USER appuser
+
+EXPOSE 8080
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
