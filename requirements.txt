@@ -2,8 +2,6 @@ fastapi
 uvicorn
 python-decouple
 requests
-numpy
-pandas
 confluent_kafka
 faust-streaming
 databricks-sdk
