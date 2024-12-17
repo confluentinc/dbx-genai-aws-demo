@@ -12,3 +12,6 @@ cd kubernetes
 
 ```
 
+## Databricks Starter Script
+
+`./agent_starter_notebook.py` contains the code used on a Databricks notebook to register an agent and provision AI models.
