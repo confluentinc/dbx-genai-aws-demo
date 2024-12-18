@@ -15,3 +15,11 @@ cd kubernetes
 ## Databricks Starter Script
 
 The `./cookie_agent` folder contains the code used on a Databricks notebook to register an agent and provision AI models.
+
+To create the scripts inside the Databricks workspace, create a folder inside the workspace and create new files.
+
+<img src="./cookie_agent/dbx-1.png" width="400" />
+
+Paste the contents of the scripts from the `./cookie_agent` folder, and they'll be rendered with the different sections (documentation, python code, SQL statements).
+
+<img src="./cookie_agent/dbx-2.png" width="400" />
